@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manhwa Tracker</title>
+</head>
+<body>
+    <h1>Manhwa Tracker</h1>
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Chapter Number</th>
+            <th>Chapter Date</th>
+        </tr>
+        {% for comic in comics %}
+        <tr>
+            <td>{{ comic.title }}</td>
+            <td>{{ comic.chapter_num }}</td>
+            <td>{{ comic.chapter_date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('add_comic') }}">Add New Comic</a>
+</body>
+</html>

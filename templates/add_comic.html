@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Manhwa</title>
+</head>
+<body>
+    <h1>Add Manhwa</h1>
+    <form method="post">
+        <label for="url">Manhwa URL:</label>
+        <input type="text" id="url" name="url" required>
+        <button type="submit">Add</button>
+    </form>
+    <a href="{{ url_for('index') }}">Back to Manhwa Tracker</a>
+</body>
+</html>
