@@ -2,10 +2,15 @@ from flask import Flask, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import requests
 from bs4 import BeautifulSoup
+from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///comics.db'
 db = SQLAlchemy(app)
+
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
 
 class Comic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,6 +64,21 @@ def get_first_link_info(url):
         print(f"Error fetching URL {url}: {e}")
         return None
 
+def update_all_comics():
+    with app.app_context():
+        comics = Comic.query.all()
+        for comic in comics:
+            updated_info = get_first_link_info(comic.url)
+            if updated_info:
+                if comic.chapter_num != updated_info['chapter_num']:
+                    comic.chapter_num = updated_info['chapter_num']
+                    comic.chapter_date = updated_info['chapter_date']
+                    db.session.commit()
+                    
+@app.before_first_request
+def force_update():
+    update_all_comics()
+
 @app.route('/')
 def index():
     comics = Comic.query.all()
@@ -80,6 +100,13 @@ def add_comic():
             db.session.commit()
             return redirect(url_for('index'))
     return render_template('add_comic.html')
+
+scheduler.add_job(
+    id='Scheduled Update',
+    func=update_all_comics,
+    trigger='interval',
+    hours=6
+)
 
 if __name__ == '__main__':
     with app.app_context():
